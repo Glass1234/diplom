@@ -1,0 +1,34 @@
+# Общие настройки
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Инструменты
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.vscode/
+
+# Данные
+*.db
+*.sqlite3
+
+# Логи
+*.log
+
+# Конфигурация
+*.env
+
+# Другие файлы
+*.egg-info/
+dist/
+build/
+*.egg
+*.whl
