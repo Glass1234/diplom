@@ -1,0 +1,226 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "FastAPI",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/sql_injection": {
+      "post": {
+        "summary": "Sql Injection",
+        "operationId": "sql_injection_sql_injection_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Address"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/xss_attack": {
+      "post": {
+        "summary": "Xss Attack",
+        "operationId": "xss_attack_xss_attack_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdvancedUserModel"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Address": {
+        "properties": {
+          "street": {
+            "type": "string",
+            "title": "Street"
+          },
+          "city": {
+            "type": "string",
+            "title": "City"
+          },
+          "postal_code": {
+            "type": "string",
+            "title": "Postal Code"
+          }
+        },
+        "type": "object",
+        "required": [
+          "street",
+          "city",
+          "postal_code"
+        ],
+        "title": "Address"
+      },
+      "AdvancedUserModel": {
+        "properties": {
+          "full_name": {
+            "type": "string",
+            "title": "Full Name"
+          },
+          "age": {
+            "type": "integer",
+            "title": "Age"
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active"
+          },
+          "rating": {
+            "type": "number",
+            "title": "Rating"
+          },
+          "addresses": {
+            "items": {
+              "$ref": "#/components/schemas/Address"
+            },
+            "type": "array",
+            "title": "Addresses"
+          },
+          "contacts": {
+            "items": {
+              "$ref": "#/components/schemas/Contact"
+            },
+            "type": "array",
+            "title": "Contacts"
+          },
+          "additional_data": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Address"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "full_name",
+          "age",
+          "is_active",
+          "rating",
+          "addresses",
+          "contacts"
+        ],
+        "title": "AdvancedUserModel"
+      },
+      "Contact": {
+        "properties": {
+          "phone": {
+            "type": "string",
+            "title": "Phone"
+          },
+          "email": {
+            "type": "string",
+            "title": "Email"
+          }
+        },
+        "type": "object",
+        "required": [
+          "phone",
+          "email"
+        ],
+        "title": "Contact"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}

@@ -1,4 +1,4 @@
-from typing import Union
+from typing import List, Optional, Dict, Union
 from fastapi import FastAPI, Request
 from pydantic import BaseModel
 import sqlite3
@@ -6,10 +6,29 @@ import json
 
 app = FastAPI()
 
-class InputData(BaseModel):
-    first_name: str
-    last_name: str
+class Address(BaseModel):
+    street: str
+    city: str
+    postal_code: str
+
+class UserModel(BaseModel):
+    name: str
     age: int
+    email: str
+    addresses: List[Address]
+
+class Contact(BaseModel):
+    phone: str
+    email: str
+
+class AdvancedUserModel(BaseModel):
+    full_name: str
+    age: int
+    is_active: bool
+    rating: float
+    addresses: List[Address]
+    contacts: List[Contact]
+    additional_data: Optional[Address] = None
 
 def create_db_and_table():
     conn = sqlite3.connect("test.db")
@@ -20,29 +39,17 @@ def create_db_and_table():
     conn.commit()
     conn.close()
 
-# # Уязвимость для SQL инъекции: выполняется небезопасный запрос
-# @app.post("/sql_injection")
-# async def sql_injection(request: Request):
-#     body = await request.json()
-#     user_input = body.get("input", "")
-
-#     create_db_and_table()
-
-#     conn = sqlite3.connect("test.db")
-#     cursor = conn.cursor()
-#     query = f"SELECT * FROM users WHERE name = '{user_input}'"  # Небезопасный запрос
-#     cursor.execute(query)
-#     result = cursor.fetchall()
-#     conn.close()
-#     return {"result": result}
+# Уязвимость для SQL инъекции: выполняется небезопасный запрос
+@app.post("/sql_injection")
+async def sql_injection(data: Address):
+    print(data)
+    return {"result": data}
 
 # Уязвимость для XSS: неэкранированный вывод пользовательского ввода
 @app.post("/xss_attack")
-async def xss_attack(data: InputData):
-    first_name = data.first_name
-    last_name = data.last_name
-    age = data.age
-    return {"message": f"Hello, {first_name} {last_name}, {age} years old!"}
+async def xss_attack(data: AdvancedUserModel):
+    print(data)
+    return {"message": data}
 
 # # Уязвимость для Injections Other Than SQL: неподходящая обработка данных
 # @app.post("/other_injections")
