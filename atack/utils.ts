@@ -29,7 +29,7 @@ export const randomBoolean = () => {
 };
 
 export const distributor = (modified: object, defaultF: Function) => {
-  if (defaultF.name in modified) {
+  if (modified && defaultF.name in modified) {
     return modified[defaultF.name]();
   } else {
     return defaultF();

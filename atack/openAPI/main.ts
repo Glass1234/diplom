@@ -5,14 +5,14 @@ const urlOPENAPI = "http://127.0.0.1:8000/openapi.json";
 const urlBase = "http://127.0.0.1:8000";
 
 class OpenAPI {
-  SCHEMAS: object;
+  SCHEMAS: object = {};
   SCHEMAS_URL: string;
   BASE_URL: string;
+  STATISCTICS: object[] = [];
 
   constructor(urlOPEN_API: string, urlBase: string) {
     this.SCHEMAS_URL = urlOPEN_API;
     this.BASE_URL = urlBase;
-    this.SCHEMAS = {};
   }
 
   async initialize(): Promise<void> {
@@ -22,6 +22,10 @@ class OpenAPI {
 
   get allPaths(): Array<string> {
     return Object.keys(this.SCHEMAS.paths);
+  }
+
+  get allStatistics(): object[] {
+    return this.STATISCTICS;
   }
 
   getHTTP_TypeByPath(path: string): Method {
@@ -38,6 +42,13 @@ class OpenAPI {
     return this.getSchemasByRef(
       this.SCHEMAS.paths[path][httpType].requestBody.content["application/json"].schema["$ref"]
     );
+  }
+
+  addStatistics(path: string, data: object, startSendTime: number): object {
+    const endSendTime = Date.now();
+    const newObject = { path, data, startSendTime, endSendTime, differenceSendTime: endSendTime - startSendTime };
+    this.STATISCTICS.push(newObject);
+    return newObject;
   }
 
   async sendRequest(path: string, data: any): Promise<AxiosResponse<any, any>> {
