@@ -1,4 +1,5 @@
 import axios, { type AxiosResponse, type Method } from "axios";
+import winston from "../logger/main";
 import fs from "fs";
 
 const urlOPENAPI = "http://127.0.0.1:8000/openapi.json";
@@ -52,6 +53,7 @@ class OpenAPI {
   }
 
   async sendRequest(path: string, data: any): Promise<AxiosResponse<any, any>> {
+    winston.info(`send ${this.getHTTP_TypeByPath(path)} ${urlBase + path}`);
     return await axios({
       method: this.getHTTP_TypeByPath(path),
       url: urlBase + path,
