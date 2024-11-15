@@ -45,19 +45,27 @@ class OpenAPI {
     );
   }
 
-  addStatistics(path: string, data: object, startSendTime: number): object {
-    const endSendTime = Date.now();
-    const newObject = { path, data, startSendTime, endSendTime, differenceSendTime: endSendTime - startSendTime };
+  addStatistics(path: string, data: object, differenceSendTime: number): object {
+    const newObject = { path, data, differenceSendTime};
     this.STATISCTICS.push(newObject);
     return newObject;
   }
 
-  async sendRequest(path: string, data: any): Promise<AxiosResponse<any, any>> {
+  sendRequest(path: string, data: any): Promise<AxiosResponse<any, any>> {
     winston.info(`send ${this.getHTTP_TypeByPath(path)} ${urlBase + path}`);
-    return await axios({
+    const startTime = Date.now();
+    console.log('send request');
+    return axios({
       method: this.getHTTP_TypeByPath(path),
       url: urlBase + path,
       data,
+    }).then((response) => {
+      if (response.status < 300 && 199 < response.status)
+        winston.info(`get ${response.config.method} ${response.config.url} ${response.status}`);
+      else winston.error(`get ${response.config.method} ${response.config.url} ${response.status}`);
+      this.addStatistics(response.config.url, data, Date.now() - startTime);
+      console.log(Date.now() - startTime);
+      return response;
     });
   }
 }
