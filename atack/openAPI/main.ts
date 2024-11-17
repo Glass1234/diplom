@@ -51,10 +51,9 @@ class OpenAPI {
     return newObject;
   }
 
-  sendRequest(path: string, data: any): Promise<AxiosResponse<any, any>> {
+  async sendRequest(path: string, data: any): Promise<AxiosResponse<any, any>> {
     winston.info(`send ${this.getHTTP_TypeByPath(path)} ${urlBase + path}`);
     const startTime = Date.now();
-    console.log('send request');
     return axios({
       method: this.getHTTP_TypeByPath(path),
       url: urlBase + path,
@@ -64,7 +63,6 @@ class OpenAPI {
         winston.info(`get ${response.config.method} ${response.config.url} ${response.status}`);
       else winston.error(`get ${response.config.method} ${response.config.url} ${response.status}`);
       this.addStatistics(response.config.url, data, Date.now() - startTime);
-      console.log(Date.now() - startTime);
       return response;
     });
   }

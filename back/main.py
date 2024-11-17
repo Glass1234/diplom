@@ -44,14 +44,13 @@ def create_db_and_table():
 @app.post("/sql_injection")
 async def sql_injection(data: Address):
     print(data)
-    time.sleep(0.5)
     return {"result": data}
 
 # Уязвимость для XSS: неэкранированный вывод пользовательского ввода
 @app.post("/xss_attack")
 async def xss_attack(data: AdvancedUserModel):
     print(data)
-    time.sleep(0.5)
+    time.sleep(0.1)
     return {"message": data}
 
 # # Уязвимость для Injections Other Than SQL: неподходящая обработка данных
