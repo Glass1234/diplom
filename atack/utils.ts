@@ -28,7 +28,7 @@ export const randomBoolean = () => {
   return Math.random() < 0.5;
 };
 
-export const distributor = (modified: object, defaultF: Function) => {
+export const distributor = (defaultF: Function, modified?: object) => {
   if (modified && defaultF.name in modified) {
     return modified[defaultF.name]();
   } else {
@@ -42,10 +42,10 @@ export const generateData = (schema: object, generator?: object): object | null 
   const newObj = {};
   for (const key in schema) {
     const typeKey = schema[key].type;
-    if (typeKey === "string") newObj[key] = distributor(generator, randomString);
-    if (typeKey === "integer") newObj[key] = distributor(generator, randomInteger);
-    if (typeKey === "number") newObj[key] = distributor(generator, randomNumber);
-    if (typeKey === "boolean") newObj[key] = distributor(generator, randomBoolean);
+    if (typeKey === "string") newObj[key] = distributor(randomString, generator);
+    if (typeKey === "integer") newObj[key] = distributor(randomInteger, generator);
+    if (typeKey === "number") newObj[key] = distributor(randomNumber, generator);
+    if (typeKey === "boolean") newObj[key] = distributor(randomBoolean, generator);
     if (typeKey === "array") newObj[key] = randomArray(generateData(api.getSchemasByRef(schema[key].items.$ref), generator));
     if (!typeKey && randomBoolean()) newObj[key] = generateData(api.getSchemasByRef(schema[key].anyOf[0].$ref), generator);
   }
@@ -57,8 +57,8 @@ export const generateParams = (schema: object, generator?: object): object | nul
   if (schema === null) return null;
   for (const key of Object.keys(schema)) {
     const typeKey = schema[key];
-    if (typeKey === "string") schema[key] = distributor(generator, randomString);
-    if (typeKey === "integer") schema[key] = distributor(generator, randomInteger);
+    if (typeKey === "string") schema[key] = distributor(randomString, generator);
+    if (typeKey === "integer") schema[key] = distributor(randomInteger, generator);
   }
   return schema;
 };
@@ -67,8 +67,8 @@ export const generatePath = (schema: object, path: string, generator?: object): 
   if (schema === null) return path;
   for (const key of Object.keys(schema)) {
     const typeKey = schema[key];
-    if (typeKey === "string") schema[key] = distributor(generator, randomString);
-    if (typeKey === "integer") schema[key] = distributor(generator, randomInteger);
+    if (typeKey === "string") schema[key] = distributor(randomString, generator);
+    if (typeKey === "integer") schema[key] = distributor(randomInteger, generator);
   }
   for (const key of Object.keys(schema)) {
     path = path.replace(`{${key}}`, schema[key]);
