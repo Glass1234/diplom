@@ -1,6 +1,7 @@
 import axios, { type AxiosResponse, type Method } from "axios";
 import winston from "../logger/main";
 import fs from "fs";
+import { generateData, generateParams, generatePath } from "../utils";
 
 const urlOPENAPI = "http://127.0.0.1:8000/openapi.json";
 const urlBase = "http://127.0.0.1:8000";
@@ -38,31 +39,81 @@ class OpenAPI {
     return this.SCHEMAS.components.schemas[ref];
   }
 
-  getSchemasByPath(path: string): object {
+  getSchemasBodyByPath(path: string): object | null {
     const httpType = this.getHTTP_TypeByPath(path);
-    return this.getSchemasByRef(
-      this.SCHEMAS.paths[path][httpType].requestBody.content["application/json"].schema["$ref"]
-    );
+    try {
+      return this.getSchemasByRef(
+        this.SCHEMAS.paths[path][httpType].requestBody.content["application/json"].schema["$ref"]
+      );
+    } catch {
+      return null;
+    }
+  }
+
+  getSchemasParamsByPath(path: string): object | null {
+    const httpType = this.getHTTP_TypeByPath(path);
+    try {
+      return this.SCHEMAS.paths[path][httpType].parameters
+        .filter((param: object) => param.in === "query")
+        .reduce((acc, item) => {
+          acc[item.name] = item.schema.type;
+          return acc;
+        }, {});
+    } catch {
+      return null;
+    }
+  }
+
+  getSchemasPathByPath(path: string): object | null {
+    const httpType = this.getHTTP_TypeByPath(path);
+    try {
+      return this.SCHEMAS.paths[path][httpType].parameters
+        .filter((param: object) => param.in === "path")
+        .reduce((acc, item) => {
+          acc[item.name] = item.schema.type;
+          return acc;
+        }, {});
+    } catch {
+      return null;
+    }
   }
 
   addStatistics(path: string, data: object, differenceSendTime: number): object {
-    const newObject = { path, data, differenceSendTime};
+    const newObject = { path, data, differenceSendTime };
     this.STATISCTICS.push(newObject);
     return newObject;
   }
 
-  async sendRequest(path: string, data: any): Promise<AxiosResponse<any, any>> {
-    winston.info(`send ${this.getHTTP_TypeByPath(path)} ${urlBase + path}`);
-    const startTime = Date.now();
-    return axios({
+  isGET_Method(path: string): boolean {
+    return this.getHTTP_TypeByPath(path) === "get";
+  }
+
+  createURL_FromSQL(path: string): string {
+    let schema = this.getSchemasBodyByPath(path);
+    schema = generateData(schema);
+    return `${urlBase + path}?${new URLSearchParams(schema).toString()}`;
+  }
+
+  async sendRequest(path: string, attack: object): Promise<AxiosResponse<any, any>> {
+    // const startTime = Date.now();
+    const data = generateData(this.getSchemasBodyByPath(path), attack);
+    const params = generateParams(this.getSchemasParamsByPath(path), attack);
+    const url = generatePath(this.getSchemasPathByPath(path), this.BASE_URL + path);
+
+    winston.info(`📤 ${this.getHTTP_TypeByPath(path)} ${url}`);
+
+    let send = axios({
       method: this.getHTTP_TypeByPath(path),
-      url: urlBase + path,
-      data,
-    }).then((response) => {
+      url: url,
+      params: params,
+      data: data,
+    });
+
+    return send.then((response) => {
       if (response.status < 300 && 199 < response.status)
-        winston.info(`get ${response.config.method} ${response.config.url} ${response.status}`);
-      else winston.error(`get ${response.config.method} ${response.config.url} ${response.status}`);
-      this.addStatistics(response.config.url, data, Date.now() - startTime);
+        winston.info(`📥 ${response.status} ${response.config.method} ${response.config.url}`);
+      else winston.error(`📥 ${response.status} ${response.config.method} ${response.config.url}`);
+      // this.addStatistics(response.config.url, data, Date.now() - startTime);
       return response;
     });
   }

@@ -36,7 +36,8 @@ export const distributor = (modified: object, defaultF: Function) => {
   }
 };
 
-export const generateData = (schema: object, generator?: object): object => {
+export const generateData = (schema: object, generator?: object): object | null => {
+  if (schema === null) return null;
   schema = schema.properties;
   const newObj = {};
   for (const key in schema) {
@@ -50,4 +51,27 @@ export const generateData = (schema: object, generator?: object): object => {
   }
 
   return newObj;
+};
+
+export const generateParams = (schema: object, generator?: object): object | null => {
+  if (schema === null) return null;
+  for (const key of Object.keys(schema)) {
+    const typeKey = schema[key];
+    if (typeKey === "string") schema[key] = distributor(generator, randomString);
+    if (typeKey === "integer") schema[key] = distributor(generator, randomInteger);
+  }
+  return schema;
+};
+
+export const generatePath = (schema: object, path: string, generator?: object): string => {
+  if (schema === null) return path;
+  for (const key of Object.keys(schema)) {
+    const typeKey = schema[key];
+    if (typeKey === "string") schema[key] = distributor(generator, randomString);
+    if (typeKey === "integer") schema[key] = distributor(generator, randomInteger);
+  }
+  for (const key of Object.keys(schema)) {
+    path = path.replace(`{${key}}`, schema[key]);
+  }
+  return path;
 };

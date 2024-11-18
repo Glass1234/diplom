@@ -5,19 +5,94 @@
     "version": "0.1.0"
   },
   "paths": {
-    "/sql_injection": {
-      "post": {
-        "summary": "Sql Injection",
-        "operationId": "sql_injection_sql_injection_post",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Address"
+    "/get_body/{name}": {
+      "get": {
+        "summary": "Get Body",
+        "operationId": "get_body_get_body__name__get",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Name"
+            }
+          },
+          {
+            "name": "id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
               }
             }
           },
-          "required": true
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/post_body_all/{id}": {
+      "post": {
+        "summary": "Post Body All",
+        "operationId": "post_body_all_post_body_all__id__post",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Id"
+            }
+          },
+          {
+            "name": "val1",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Val1"
+            }
+          },
+          {
+            "name": "val2",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Val2"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdvancedUserModel"
+              }
+            }
+          }
         },
         "responses": {
           "200": {
@@ -41,19 +116,77 @@
         }
       }
     },
-    "/xss_attack": {
-      "post": {
-        "summary": "Xss Attack",
-        "operationId": "xss_attack_xss_attack_post",
+    "/delete_body/{id}": {
+      "delete": {
+        "summary": "Delete Body",
+        "operationId": "delete_body_delete_body__id__delete",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Id"
+            }
+          }
+        ],
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/AdvancedUserModel"
+                "$ref": "#/components/schemas/Address"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
               }
             }
           },
-          "required": true
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/put_body/{id}": {
+      "put": {
+        "summary": "Put Body",
+        "operationId": "put_body_put_body__id__put",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Address"
+              }
+            }
+          }
         },
         "responses": {
           "200": {
