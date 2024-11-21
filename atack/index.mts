@@ -18,10 +18,8 @@ const rateLimiting = async (): Promise<void> => {
   const RATE_LIMIT = 5;
   const requests: Promise<AxiosResponse<any, any>>[] = [];
   api.allPaths.forEach((path) => {
-    const schema = api.getSchemasBodyByPath(path);
-    const genData = generateData(schema);
     for (let i = 0; i < RATE_LIMIT; i++) {
-      requests.push(api.sendRequest(path, genData));
+      requests.push(api.sendRequest(path));
     }
   });
   await Promise.all(requests);
@@ -32,7 +30,6 @@ const sqlMap = async (): Promise<void> => {
   for (const path of api.allPaths) {
     if (api.isGET_Method(path)) {
       const command = `python3 ${sqlmapPath} -u "${api.createURL_FromSQL(path)}" --level=1 --risk=1 --batch`;
-      console.log(command);
       exec(command, (_, stdout) => {
         if (stdout) {
           let filteredOut = stdout.split("\n");
@@ -67,9 +64,9 @@ const sqlMap = async (): Promise<void> => {
 
 const main = async (): Promise<void> => {
   await api.initialize();
-  await attacks();
+  // await attacks();
   // await rateLimiting();
-  // sqlMap();
+  sqlMap();
   api.STATISCTICS.forEach((stat) => console.log(stat.differenceSendTime));
 };
 

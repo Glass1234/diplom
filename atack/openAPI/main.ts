@@ -39,18 +39,18 @@ class OpenAPI {
     return this.SCHEMAS.components.schemas[ref];
   }
 
-  getSchemasBodyByPath(path: string): object | null {
+  getSchemasBodyByPath(path: string): object | undefined {
     const httpType = this.getHTTP_TypeByPath(path);
     try {
       return this.getSchemasByRef(
         this.SCHEMAS.paths[path][httpType].requestBody.content["application/json"].schema["$ref"]
       );
     } catch {
-      return null;
+      return undefined;
     }
   }
 
-  getSchemasParamsByPath(path: string): object | null {
+  getSchemasParamsByPath(path: string): object | undefined {
     const httpType = this.getHTTP_TypeByPath(path);
     try {
       return this.SCHEMAS.paths[path][httpType].parameters
@@ -60,11 +60,11 @@ class OpenAPI {
           return acc;
         }, {});
     } catch {
-      return null;
+      return undefined;
     }
   }
 
-  getSchemasPathByPath(path: string): object | null {
+  getSchemasPathByPath(path: string): object | undefined {
     const httpType = this.getHTTP_TypeByPath(path);
     try {
       return this.SCHEMAS.paths[path][httpType].parameters
@@ -74,7 +74,7 @@ class OpenAPI {
           return acc;
         }, {});
     } catch {
-      return null;
+      return undefined;
     }
   }
 
@@ -89,16 +89,14 @@ class OpenAPI {
   }
 
   createURL_FromSQL(path: string): string {
-    let schema = this.getSchemasBodyByPath(path);
-    schema = generateData(schema);
-    return `${urlBase + path}?${new URLSearchParams(schema).toString()}`;
+    return generatePath(this.BASE_URL + path, this.getSchemasPathByPath(path));
   }
 
-  async sendRequest(path: string, attack: object): Promise<AxiosResponse<any, any>> {
+  async sendRequest(path: string, attack?: object): Promise<AxiosResponse<any, any>> {
     // const startTime = Date.now();
-    const data = generateData(this.getSchemasBodyByPath(path), attack);
+    const url = generatePath(this.BASE_URL + path, this.getSchemasPathByPath(path));
     const params = generateParams(this.getSchemasParamsByPath(path), attack);
-    const url = generatePath(this.getSchemasPathByPath(path), this.BASE_URL + path);
+    const data = generateData(this.getSchemasBodyByPath(path), attack);
 
     winston.info(`📤 ${this.getHTTP_TypeByPath(path)} ${url}`);
 
