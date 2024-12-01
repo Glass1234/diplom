@@ -51,6 +51,16 @@ def create_db_and_table():
 create_db_and_table()
 
 
+@app.get("/get_user")
+async def get_user(id: str):
+    conn = sqlite3.connect("test.db")
+    cursor = conn.cursor()
+    query = f"SELECT * FROM users WHERE id = {id}"
+    cursor.execute(query)
+    result = cursor.fetchall()
+    conn.close()
+    return {"data": result}
+
 @app.get("/get_body/{name}")
 async def get_body(name: str, id: int):
     return name

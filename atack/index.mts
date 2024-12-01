@@ -1,5 +1,5 @@
 import { api } from "./openAPI/main";
-import { generateData } from "./utils";
+import { convertOutSqlMap } from "./utils";
 import XssAttack from "./xssAttack/main";
 import NoSQLInjection from "./NoSQLInjection/main";
 import type { AxiosResponse } from "axios";
@@ -26,48 +26,52 @@ const rateLimiting = async (): Promise<void> => {
 };
 
 const sqlMap = async (): Promise<void> => {
-  const sqlmapPath = path.resolve(__dirname, "../sqlmap-dev/sqlmap.py");
+  const sqlmapPath = path.resolve(__dirname, "../sqlmap/sqlmap.py");
   for (const path of api.allPaths) {
     if (api.isGET_Method(path)) {
       const command = `python3 ${sqlmapPath} -u "${api.createURL_FromSQL(path)}" --level=1 --risk=1 --batch`;
-      exec(command, (_, stdout) => {
-        if (stdout) {
-          let filteredOut = stdout.split("\n");
-          filteredOut = filteredOut.filter(str => !str.includes("[INFO]"));
-          filteredOut = filteredOut.filter(str => !str.includes("[ERROR]"));
-          filteredOut = filteredOut.filter(str => !str.includes("[WARNING]"));
-          filteredOut = filteredOut.filter(str => !str.includes("[!]"));
-          filteredOut = filteredOut.filter(str => !str.includes("[*]"));
-
-          console.log(filteredOut.join("\n"));
-
-          const result = [];
-          let betweenMarkers = false;
-          for (const str of filteredOut) {
-            if (str === "---") {
-              betweenMarkers = !betweenMarkers;
-              continue;
+      console.log(command);
+      const resComand: string[] = await (new Promise((resolve, reject) => {
+        exec(command, (_, stdout) => {
+          if (stdout) {
+            let filteredOut = stdout.split("\n");
+            filteredOut = filteredOut.filter(str => !str.includes("[INFO]"));
+            filteredOut = filteredOut.filter(str => !str.includes("[ERROR]"));
+            filteredOut = filteredOut.filter(str => !str.includes("[WARNING]"));
+            filteredOut = filteredOut.filter(str => !str.includes("[!]"));
+            filteredOut = filteredOut.filter(str => !str.includes("[*]"));
+  
+            // console.log(filteredOut.join("\n"));
+  
+            const result = [];
+            let betweenMarkers = false;
+            for (const str of filteredOut) {
+              if (str === "---") {
+                betweenMarkers = !betweenMarkers;
+                continue;
+              }
+              if (betweenMarkers) {
+                result.push(str);
+              }
             }
-            if (betweenMarkers) {
-              result.push(str);
-            }
+  
+            resolve(result);
           }
-          filteredOut = result;
-
-          // console.log(stdout);
-          return;
-        }
-      });
+        });
+      }));
+      if (resComand.length) {
+        const convertData = convertOutSqlMap(resComand);
+        console.log(convertData);
+      }
     }
   }
 };
 
 const main = async (): Promise<void> => {
   await api.initialize();
-  // await attacks();
-  // await rateLimiting();
+  await attacks();
+  await rateLimiting();
   sqlMap();
-  api.STATISCTICS.forEach((stat) => console.log(stat.differenceSendTime));
 };
 
 main();

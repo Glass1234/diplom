@@ -89,7 +89,8 @@ class OpenAPI {
   }
 
   createURL_FromSQL(path: string): string {
-    return generatePath(this.BASE_URL + path, this.getSchemasPathByPath(path));
+    const pathTmp = generatePath(this.BASE_URL + path, this.getSchemasPathByPath(path));
+    return `${pathTmp}?${new URLSearchParams(generateParams(this.getSchemasParamsByPath(path))).toString()}`;
   }
 
   async sendRequest(path: string, attack?: object): Promise<AxiosResponse<any, any>> {
@@ -112,6 +113,9 @@ class OpenAPI {
         winston.info(`📥 ${response.status} ${response.config.method} ${response.config.url}`);
       else winston.error(`📥 ${response.status} ${response.config.method} ${response.config.url}`);
       // this.addStatistics(response.config.url, data, Date.now() - startTime);
+      return response;
+    }).catch(response =>{
+      winston.error(`📥 ${response.status} ${response.config.method} ${response.config.url}`);
       return response;
     });
   }

@@ -75,3 +75,29 @@ export const generatePath = (path: string, schema?: object, generator?: object):
   }
   return path;
 };
+
+export const convertOutSqlMap = (out: string[]): object => {
+  const getValueByString = (str:string): object => {
+    const key = str.split(':')[0].trim();
+    const value = str.split(':')[1].trim();
+    return { [key]: value };
+  }
+
+  const resultObj = {
+    Parameter: Object.values(getValueByString(out[0]))[0],
+    Details: [],
+  };
+  let tmpObj = {};
+  for(let i = 1; i < out.length; i++){
+    const iterStr: string = out[i];
+    if (iterStr.length === 0){
+      resultObj.Details.push(tmpObj);
+      tmpObj = {};
+    } else {
+      tmpObj = {...tmpObj, ...getValueByString(iterStr)}
+    }
+  }
+  resultObj.Details.push(tmpObj);
+
+  return resultObj;
+}

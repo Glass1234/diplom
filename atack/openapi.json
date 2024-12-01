@@ -5,6 +5,43 @@
     "version": "0.1.0"
   },
   "paths": {
+    "/get_user": {
+      "get": {
+        "summary": "Get User",
+        "operationId": "get_user_get_user_get",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/get_body/{name}": {
       "get": {
         "summary": "Get Body",
